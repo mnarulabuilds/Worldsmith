@@ -41,20 +41,22 @@ export default function ProceduralTerrain({ params, palette }: Props) {
     const ramp = palette.terrain.map(hexToVec3);
     const range = max - min || 1;
 
+    const maxIdx = ramp.length - 1;
+
     for (let i = 0; i < pos.count; i++) {
       const h = pos.getY(i);
-      const t = (h - min) / range;
+      const t = Math.max(0, Math.min(1, (h - min) / range));
 
-      const idx = t * (ramp.length - 1);
-      const lo = Math.floor(idx);
-      const hi = Math.min(lo + 1, ramp.length - 1);
+      const idx = t * maxIdx;
+      const lo = Math.min(Math.floor(idx), maxIdx);
+      const hi = Math.min(lo + 1, maxIdx);
       const frac = idx - lo;
 
       const r = ramp[lo].x + (ramp[hi].x - ramp[lo].x) * frac;
       const g = ramp[lo].y + (ramp[hi].y - ramp[lo].y) * frac;
       const b = ramp[lo].z + (ramp[hi].z - ramp[lo].z) * frac;
 
-      const slopeNoise = (Math.random() - 0.5) * 0.03;
+      const slopeNoise = (Math.abs(Math.sin(i * 12.9898 + params.seed * 0.01) * 43758.5453) % 1 - 0.5) * 0.03;
       colors[i * 3] = Math.max(0, Math.min(1, r + slopeNoise));
       colors[i * 3 + 1] = Math.max(0, Math.min(1, g + slopeNoise));
       colors[i * 3 + 2] = Math.max(0, Math.min(1, b + slopeNoise));
